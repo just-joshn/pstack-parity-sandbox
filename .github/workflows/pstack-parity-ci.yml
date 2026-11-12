@@ -1,0 +1,20 @@
+name: CI
+on:
+  push:
+    branches: ['pf/**', '!pf/**/trunk']
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: build
+        run: |
+          mode=$(cat .ci-mode 2>/dev/null || echo pass)
+          echo "mode=$mode attempt=$GITHUB_RUN_ATTEMPT"
+          case "$mode" in
+            fail) echo "Error: test suite failed in src/cart.js"; exit 1 ;;
+            flaky) if [ "$GITHUB_RUN_ATTEMPT" = 1 ]; then echo "Run npm ci"; echo "npm error network request to https://registry.npmjs.org/left-pad failed, reason: read ECONNRESET"; echo "Error: Process completed with exit code 1."; exit 1; fi ;;
+          esac
