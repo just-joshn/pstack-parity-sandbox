@@ -9,7 +9,8 @@ export function subtotal(items) {
 }
 
 export function applyCoupon(amount, percent) {
-  return roundCents(amount - (amount * percent) / 100);
+  const capped = Math.min(percent, 100);
+  return roundCents(amount - (amount * capped) / 100);
 }
 
 export function total(items, couponPercent = 0) {
