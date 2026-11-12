@@ -1,0 +1,94 @@
+{
+  "name": "@justjoshn/pi-pstack",
+  "version": "0.15.36-pi.40",
+  "description": "pstack 0.15.36 for Pi: pstack's skills and playbooks compiled from the pinned upstream into native Pi skills and prompts, a small extension with /pstack and the pstack_worker and pstack_evidence tools, and workers that run as Pi processes in tmux",
+  "type": "module",
+  "license": "MIT",
+  "pstackSource": {
+    "repository": "https://github.com/cursor/plugins",
+    "revision": "a5539b15a3d56e04992565aafee2b37051329ce3",
+    "path": "pstack",
+    "version": "0.15.36",
+    "lastChange": "c742dd61706fbacc1b95f1a20b7b988cf096ce6c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/just-joshn/pi-customizations.git",
+    "directory": "extensions/pi-pstack"
+  },
+  "homepage": "https://github.com/just-joshn/pi-customizations/tree/main/extensions/pi-pstack#readme",
+  "bugs": {
+    "url": "https://github.com/just-joshn/pi-customizations/issues"
+  },
+  "keywords": [
+    "pi-package",
+    "pstack"
+  ],
+  "engines": {
+    "node": ">=22.21.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
+  "pi": {
+    "extensions": [
+      "./src/extension.ts"
+    ],
+    "skills": [
+      "./generated/skills"
+    ],
+    "prompts": [
+      "./generated/prompts"
+    ]
+  },
+  "files": [
+    "src",
+    "generated",
+    "!generated/**/node_modules",
+    "vendor",
+    "adapters",
+    "scripts",
+    "dist",
+    "docs",
+    "assets",
+    "licenses",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build:helpers": "bun scripts/build-helpers.mjs",
+    "check:helpers": "bun scripts/build-helpers.mjs --check",
+    "build:netbroker": "node scripts/build-netbroker.mjs",
+    "check:netbroker": "node scripts/build-netbroker.mjs --check",
+    "prepack": "bun scripts/build-helpers.mjs --check",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:statechart": "node --disable-warning=ExperimentalWarning --test generated/skills/statechart/scripts/test/*.test.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sandbox-runtime": "0.0.79",
+    "yaml": "2.9.0"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*",
+    "typebox": "*"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-ai": "1.5.0",
+    "@earendil-works/pi-coding-agent": "1.5.0",
+    "@types/node": "^22.19.0",
+    "@vitest/coverage-v8": "^5.0.2",
+    "commander": "14.0.0",
+    "jsdom": "26.1.0",
+    "mermaid": "11.16.0",
+    "pele": "1.9.0",
+    "fast-check": "4.5.3",
+    "typebox": "1.3.27",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.2"
+  }
+}
