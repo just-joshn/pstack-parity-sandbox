@@ -1,0 +1,129 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": [
+      "**",
+      "!!**/dist",
+      "!!**/build",
+      "!!**/coverage",
+      "!!parity/reference",
+      "!!parity/fixtures",
+      "!!parity/evidence",
+      "!!parity/*/evidence",
+      "!!parity/corpus-*",
+      "!!parity/pi-rea/rea-6.8.0-*.json",
+      "!!extensions/pi-rea/schemas/tool-contracts.json",
+      "!!parity/private",
+      "!!parity/oauth-rea-2026-10-31/*/extracted-js",
+      "!!parity/oauth-rea-2026-10-31/**/*.json",
+      "!!parity/artifacts",
+      "!!parity/research",
+      "!!parity/reviews",
+      "!!parity/configurations.json",
+      "!!parity/dependencies.json",
+      "!!parity/inventory.json",
+      "!!parity/mismatches.json",
+      "!!parity/requirements.json",
+      "!!parity/source-lock.json",
+      "!!parity/scenarios",
+      "!!extensions/pi-pstack/vendor",
+      "!!extensions/pi-pstack/generated",
+      "!!extensions/pi-pstack/automations",
+      "!!extensions/pi-pstack/upstream.lock.json",
+      "!!extensions/pi-pstack/lint-baseline.json",
+      "!!extensions/pi-maintainer/parity/coverage.json",
+      "!!extensions/pi-maintainer/parity/ledger.json",
+      "!!extensions/pi-maintainer/test/fixtures/watch"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 240
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "semicolons": "always"
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "domains": {
+      "project": "recommended",
+      "types": "recommended"
+    },
+    "rules": {
+      "preset": "recommended",
+      "correctness": {
+        "noUndeclaredDependencies": "error"
+      },
+      "complexity": {
+        "useLiteralKeys": "off"
+      },
+      "security": {
+        "noSecrets": "off"
+      },
+      "suspicious": {
+        "noDeprecatedImports": "warn",
+        "noImportCycles": "warn"
+      }
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [[":BUN:", ":NODE:"], ":BLANK_LINE:"]
+          }
+        }
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["parity/**"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noUselessTernary": "off"
+          },
+          "correctness": {
+            "noUnusedFunctionParameters": "off"
+          },
+          "style": {
+            "useTemplate": "off"
+          },
+          "suspicious": {
+            "noAssignInExpressions": "off",
+            "noControlCharactersInRegex": "off",
+            "noShadowRestrictedNames": "off",
+            "noTemplateCurlyInString": "off"
+          },
+          "security": {
+            "noSecrets": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/test/**", "extensions/pi-pstack/scripts/**"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noControlCharactersInRegex": "off"
+          }
+        }
+      }
+    }
+  ]
+}
