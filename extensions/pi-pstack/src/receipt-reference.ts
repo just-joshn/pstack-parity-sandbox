@@ -1,0 +1,62 @@
+// The receipt's shape in words, shared by the pstack_evidence tool description, validation errors, and the compiled
+// worker reference, so none of them can drift from the others. src/evidence.ts holds the schema these describe.
+export const RECEIPT_KINDS = ['test', 'command', 'screenshot', 'trace', 'review', 'measurement', 'other'] as const;
+export const RECEIPT_VERDICTS = ['pass', 'fail', 'inconclusive'] as const;
+
+/** What each receipt field must be, keyed by field name. Validation errors quote the entry of the field they reject. */
+export const RECEIPT_FIELD_HINTS: Readonly<Record<string, string>> = {
+  schemaVersion: 'the number 1',
+  id: 'letters, digits, ".", "_", "-"; starts with a letter or digit; at most 128 characters; unique within the run, including replacement workers; prefix with your worker id, for example verify-pr22-r2-tests; an identical re-record is a no-op, different content cannot replace a recorded id',
+  runId: "the run's id, the folder name under .pi/pstack/runs",
+  target: 'a TODO step id, worker id, or commit; non-empty',
+  kind: `one of ${RECEIPT_KINDS.join(', ')}`,
+  verdict: `one of ${RECEIPT_VERDICTS.join(', ')}`,
+  commit: 'the commit SHA the check examined, or null',
+  environment: 'text saying where the check ran',
+  command: 'optional; the command as an array of strings',
+  exitCode: 'optional; the command exit status, an integer',
+  artifacts: 'an array of { path, sha256 }, [] when there is no file; path is relative to the run root or absolute inside it; sha256 is 64 lowercase hex characters of the file',
+  defects: 'optional; an array of strings',
+  reason: 'optional; text',
+  expectedFail: 'optional; true marks an intended failing-before proof: verdict pass then means the command failed as intended, and exitCode must be non-zero. verify then reads the recorded output and confirms the tests named in expectedFailTests failed for expectedFailReason, with the reason inside the failure of each named test itself (its per-test result, or the JSON or TAP results of the runner), and that the run did not fail from a crash, a syntax error, a missing file, or zero tests run',
+  expectedFailTests: 'required with expectedFail; the failing test names or assertion text the output must show failing, as they appear in it',
+  expectedFailReason: 'required with expectedFail; text from the failure message that states why they fail, which the output must contain',
+  createdAt: 'an ISO timestamp string',
+};
+
+export const RECEIPT_FIELDS = Object.keys(RECEIPT_FIELD_HINTS);
+
+/** Markdown for the worker reference: every field, the rules `verify` applies, and one complete example. */
+export const RECEIPT_REFERENCE = `## Evidence receipt
+
+A receipt is one JSON file for one check you ran. A writable worker saves it under its worker directory's \`evidence/\` and registers it with \`pstack_evidence\` \`record\` (\`{ action: "record", runId, receiptPath }\`). The parent saves its own under the run directory. \`record\` rejects a field not listed here and names the field it rejects.
+
+${RECEIPT_FIELDS.map((field) => `- \`${field}\`: ${RECEIPT_FIELD_HINTS[field]}.`).join('\n')}
+
+\`pstack_evidence\` \`verify\` takes a \`target\` and re-checks every receipt recorded for it. A missing receipt is \`inconclusive\`. A \`pass\` with no artifacts is \`inconclusive\`, because it is an assertion and not evidence. A \`pass\` whose \`exitCode\` is not 0 fails, unless \`expectedFail\` is \`true\`. A \`fail\` receipt makes the target fail. \`verify\` also fails a receipt whose artifact is missing or does not match its \`sha256\`, and, when the target is a commit, one whose \`commit\` differs.
+
+To prove a check fails before the fix, run it and record a receipt with \`expectedFail: true\`, \`verdict: "pass"\`, the non-zero \`exitCode\`, and the failing output as the artifact, under its own target such as \`<step>-before\`. Name the failing tests (or assertion) in \`expectedFailTests\` and the failure message text in \`expectedFailReason\`. \`verify\` reads the recorded output and is \`inconclusive\` without those fields or when the output holds no per-test results to tie a failure to a name, and \`fail\` when a named test is not shown failing, the reason is not in that test's own failure, or the output shows a crash, a syntax error, a missing file, or zero tests run. Record the passing run after the fix under the step's target. A receipt without \`expectedFail\` that says \`pass\` with a non-zero \`exitCode\` is rejected as contradicting itself.
+
+\`\`\`json receipt
+{
+  "schemaVersion": 1,
+  "id": "repro-before",
+  "runId": "fix-login-redirect",
+  "target": "4-before",
+  "kind": "test",
+  "verdict": "pass",
+  "expectedFail": true,
+  "commit": "4f2c1a9e0b7d3c5a8e6f1b2d4c9a7e3f5b1d8c6a",
+  "environment": "worker worktree, node 22",
+  "command": ["npx", "vitest", "run", "redirect.test.ts"],
+  "exitCode": 1,
+  "expectedFailTests": ["redirects to the page the user asked for"],
+  "expectedFailReason": "expected '/login' to equal '/orders'",
+  "artifacts": [{ "path": "workers/fix/evidence/repro-before.txt", "sha256": "<64 hex characters of that file>" }],
+  "createdAt": "2026-11-12T10:00:00Z"
+}
+\`\`\`
+`;
+
+/** The short form for the pstack_evidence tool description. */
+export const RECEIPT_TOOL_SUMMARY = `A receipt is a JSON object with exactly these fields: ${RECEIPT_FIELDS.map((field) => `${field} (${RECEIPT_FIELD_HINTS[field]})`).join('; ')}.`;
